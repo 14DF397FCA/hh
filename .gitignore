@@ -1,0 +1,9 @@
+.idea/
+config.ini
+temp.*
+bin/
+include/
+lib/
+lib64/
+pip-selfcheck.json
+pyvenv.cfg
