@@ -1,8 +1,8 @@
-from typing import Set, List, Tuple
+from typing import Set, List
 
-from start_app import *
 from hh import get_access_token, get_resumes, refresh_resumes
 from libs import RefreshStatus
+from start_app import *
 
 
 def print_results(results: List[RefreshStatus]) -> NoReturn:
