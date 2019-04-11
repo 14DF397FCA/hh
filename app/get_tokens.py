@@ -4,7 +4,7 @@ from typing import NoReturn
 import requests
 import logging
 
-URI_HH_OAUTH_TOKEN = "https://hh.ru/oauth/token"
+from hh import make_auth_http_headers, URI_HH_OAUTH_TOKEN
 
 
 def read_args():
@@ -41,12 +41,7 @@ if __name__ == '__main__':
             "code": args.authorization_code,
             "redirect_uri": args.redirect_uri}
 
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": "GIlyashenko/1.0 (ilyashenko.gennadiy@gmail.com)",
-        "Host": "api.hh.ru",
-        "Accept": "*/*"
-    }
+    headers = make_auth_http_headers()
 
     logging.debug("data: %s", data)
     logging.debug("headers: %s", headers)
