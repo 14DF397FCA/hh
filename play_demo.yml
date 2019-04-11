@@ -1,0 +1,10 @@
+- hosts: all
+#  connection: local
+  become: yes
+  roles:
+  - role: ansible_hh_role
+    access_token: DOH75V91BLNWQ686XD806Z3655YZU08PK66G4EVG543A13D5O264VVSQ6JTA283V
+    refresh_token: 70V0TO2VB56MR9FSBI0PIU49UKWU7HXCKTYMB2H77TC4UF3DABYXD642CLHWA5US
+    resume_ids:
+      - 832wdimmpintvqvs8128xf0y0452c4s1j4euzj
+      - k7cor17q2sy32948l3i40h9awd0q200i3o472q
