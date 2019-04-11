@@ -1,0 +1,72 @@
+---
+- name: Make install folders
+  file:
+    path: "{{ install_dir }}"
+    force: yes
+    owner: "{{ owner_user }}"
+    group: "{{ owner_group }}"
+    recurse: yes
+    state: directory
+
+- name: Make log folders
+  file:
+    path: "{{ log_dir }}"
+    force: yes
+    owner: "{{ owner_user }}"
+    group: "{{ owner_group }}"
+    recurse: yes
+    state: directory
+
+- name: Create config for application
+  template:
+    src: "config.ini.j2"
+    dest: "{{ configuration_file }}"
+    force: yes
+    owner: "{{ owner_user }}"
+    group: "{{ owner_group }}"
+
+- name: Copy application
+  copy:
+    src: app
+    dest: "{{ install_dir }}"
+    owner: "{{ owner_user }}"
+    group: "{{ owner_user }}"
+
+- name: Install python dependencies
+  yum:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+      - python36-devel
+      - python36-pip
+  when: ansible_os_family == 'RedHat'
+
+- name: Install python dependencies
+  apt:
+    name: python3.6-dev
+    state: present
+    update_cache: yes
+  when: ansible_os_family == 'Debian'
+
+- name: Make python venv
+  pip:
+    requirements: "{{ install_dir }}/app/requirements.txt"
+    virtualenv: "{{ install_dir }}"
+    virtualenv_python: python36
+
+- name: Create shell script to execute application
+  template:
+    src: "run_app.sh.j2"
+    dest: "{{ refresh_shell_script }}"
+    force: yes
+    owner: "{{ owner_user }}"
+    group: "{{ owner_group }}"
+
+- name: Add to cron application
+  cron:
+    name: "Refresh resume"
+    hour: "{{ cron_hour }}"
+    minute: "{{ cron_minutes }}"
+    state: present
+    job: "/bin/bash {{ refresh_shell_script }}"

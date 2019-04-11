@@ -1,0 +1,20 @@
+access_token: your_valid_acccess_token
+refresh_token: your_valid_refresh_token
+resume_ids:
+  - your_first_resume_id
+  - your_second_resume_id
+
+install_dir: /opt/hh
+log_dir: /var/log/hh
+configuration_file: "{{ install_dir }}/config.ini"
+refresh_shell_script: "{{ install_dir }}/run_app.sh"
+
+owner_user: root
+owner_group: root
+
+python_bin: "{{ install_dir }}/bin/python3.6"
+pip_bin: "{{ install_dir }}/bin/pip3.6"
+
+cron_hour: "*/1"
+cron_minutes: "0"
+

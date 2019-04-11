@@ -1,0 +1,4 @@
+[main]
+access_token={{ access_token }}
+refresh_token={{ refresh_token }}
+resume_ids={% for id in resume_ids %} {{ id }}{% if not loop.last %},{% else %}{% endif %} {% endfor %}
