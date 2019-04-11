@@ -1,12 +1,23 @@
-from configparser import ConfigParser
-from typing import Set, Tuple, Dict, List
 import logging
+from configparser import ConfigParser
+from typing import Set, Dict, List
+
 import requests
 
 from libs import string_to_set, read_value, RefreshStatus
+from tokens import Tokens
 
 URI_HH_OAUTH_TOKEN = "https://hh.ru/oauth/token"
-URI_HH_API = "https://api.hh.ru"
+URI_HH_API_SHORT = "api.hh.ru"
+URI_HH_API = f"https://{URI_HH_API_SHORT}"
+USER_AGENT = "GIlyashenko/1.0 (ilyashenko.gennadiy@gmail.com)"
+
+
+def get_tokens(config: ConfigParser) -> Tokens:
+    access_token: str = get_access_token(config=config)
+    refresh_token: str = get_refresh_token(config=config)
+    return Tokens(access_token=access_token,
+                  refresh_token=refresh_token)
 
 
 def get_access_token(config: ConfigParser) -> str:
@@ -24,11 +35,19 @@ def get_resumes(config: ConfigParser) -> Set[str]:
     return string_to_set(read_raw_resumes())
 
 
+def make_auth_http_headers() -> Dict:
+    return {"Content-Type": "application/x-www-form-urlencoded",
+            "User-Agent": USER_AGENT,
+            "Accept": "*/*"
+            }
+
+
 def make_http_headers(token: str) -> Dict:
-    r: Dict = {"User-Agent": "GIlyashenko/1.0 (ilyashenko.gennadiy@gmail.com)",
-               "Host": "api.hh.ru",
+    r: Dict = {"User-Agent": USER_AGENT,
+               "Host": URI_HH_API_SHORT,
                "Accept": "*/*",
-               "Authorization": str(f"Bearer {token}")}
+               "Authorization": str(f"Bearer {token}")
+               }
     logging.debug("HTTP_headers: %s", r)
     return r
 
@@ -39,16 +58,24 @@ def make_refresh_resume_url(resume: str) -> str:
     return r
 
 
-def refresh_tokens(access_token: str, refresh_token: str) -> Tuple[str, str]:
-    headers = {"grant_type": "refresh_token",
-               "refresh_token": refresh_token}
-    r = requests.post(url=URI_HH_OAUTH_TOKEN, headers=headers)
+def refresh_tokens(tokens: Tokens) -> Tokens:
+    logging.debug("Try to refresh tokens")
+    data = {"grant_type": "refresh_token",
+            "refresh_token": tokens.refresh_token}
+
+    headers = make_auth_http_headers()
+
+    r = requests.post(url=URI_HH_OAUTH_TOKEN, headers=headers, data=data)
+    logging.info(r.text)
     if r.status_code == 200:
         js = r.json()
-        return js["access_token"], js["refresh_token"]
+        r = Tokens(access_token=js["access_token"],
+                   refresh_token=js["refresh_token"])
+        logging.debug("Tokens: %s", r)
+        return r
     else:
         logging.error("status_code: %s; response: %s", r.status_code, r.text)
-        return access_token, refresh_token
+        return tokens
 
 
 def make_http_request(resume: str, token: str) -> RefreshStatus:
