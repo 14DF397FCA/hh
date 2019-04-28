@@ -1,6 +1,7 @@
+import configparser
 import logging
 from configparser import ConfigParser
-from typing import Set, Dict, List
+from typing import Set, Dict, List, NoReturn
 
 import requests
 
