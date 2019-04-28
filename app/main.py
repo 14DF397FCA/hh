@@ -1,9 +1,9 @@
 from typing import Set, List
 
-from hh import get_resumes, refresh_resumes, refresh_tokens, get_tokens
+from hh import get_resumes, refresh_resumes, get_tokens
 from libs import RefreshStatus
 from start_app import *
-from tokens import Tokens
+from tokens import refresh_token_if_needed
 
 
 def print_results(results: List[RefreshStatus]) -> NoReturn:
@@ -13,20 +13,6 @@ def print_results(results: List[RefreshStatus]) -> NoReturn:
                 logging.info("Resume %s was updated", r.resume)
             else:
                 logging.info("Resume %s was not updated, with error: %s", r.resume, r.description)
-
-
-def refresh_token_if_needed(results: List[RefreshStatus], tokens: Tokens, config_file: str) -> NoReturn:
-    tail: RefreshStatus = results[-1]
-    if tail.status_code == 403:
-        save_tokens(tokens=refresh_tokens(tokens), file_name=config_file)
-
-
-def save_tokens(tokens: Tokens, file_name: str) -> NoReturn:
-    config = configparser.ConfigParser()
-    config.set("main", "access_token", tokens.access_token)
-    config.set("main", "refresh_token", tokens.refresh_token)
-    with open(file_name, "w") as config_file:
-        config.write(config_file)
 
 
 def main():
