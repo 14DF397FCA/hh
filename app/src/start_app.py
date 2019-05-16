@@ -32,9 +32,13 @@ def read_args():
     return parser.parse_args()
 
 
+def get_app_configuration(filename: str) -> ConfigParser:
+    config = configparser.ConfigParser()
+    config.read(filename)
+    return config["main"]
+
+
 def read_app_config(args) -> ConfigParser:
     if not os.path.isfile(args.app_conf):
         logging.error(f"Can't find config file {args.app_conf}")
-    config = configparser.ConfigParser()
-    config.read(args.app_conf)
-    return config["main"]
+    return get_app_configuration(filename=args.app_conf)
