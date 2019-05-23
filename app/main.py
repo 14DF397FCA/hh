@@ -15,15 +15,14 @@ def print_results(results: List[RefreshStatus]) -> NoReturn:
                 logging.info("Resume %s was not updated, with error: %s", r.resume, r.description)
 
 
-def refresh_token_if_needed(results: List[RefreshStatus], tokens: Tokens, config_file: str) -> NoReturn:
+def refresh_token_if_needed(results: List[RefreshStatus], tokens: Tokens, config_file: str,
+                            config: ConfigParser) -> NoReturn:
     tail: RefreshStatus = results[-1]
     if tail.status_code == 403:
-        save_tokens(tokens=refresh_tokens(tokens), file_name=config_file)
+        save_tokens(tokens=refresh_tokens(tokens), file_name=config_file, config=config)
 
 
-def save_tokens(tokens: Tokens, file_name: str) -> NoReturn:
-    config = configparser.ConfigParser()
-    config.add_section("main")
+def save_tokens(tokens: Tokens, file_name: str, config: ConfigParser) -> NoReturn:
     config.set("main", "access_token", tokens.access_token)
     config.set("main", "refresh_token", tokens.refresh_token)
     with open(file_name, "w") as config_file:
@@ -42,7 +41,7 @@ def main():
     results: List[RefreshStatus] = refresh_resumes(resumes=resumes, token=tokens.access_token)
     print_results(results)
 
-    refresh_token_if_needed(results=results, tokens=tokens, config_file=args.app_conf)
+    refresh_token_if_needed(results=results, tokens=tokens, config_file=args.app_conf, config=config)
 
 
 if __name__ == '__main__':
